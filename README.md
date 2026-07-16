@@ -2,6 +2,13 @@
 
 AURA is an AI SaaS startup platform scaffolded for future product development.
 
+## Tech Stack
+
+- Frontend: Next.js
+- Backend: FastAPI
+- AI: LangGraph + OpenAI
+- Database: PostgreSQL
+
 ## Project Structure
 
 - docs/ — product, architecture, and operational documentation
@@ -16,4 +23,4 @@ AURA is an AI SaaS startup platform scaffolded for future product development.
 
 ## Status
 
-This repository currently contains the initial folder structure and documentation placeholders only.
+This repository currently contains the initial platform structure, landing experience, assessment flow, analysis experience, and dashboard experience.
