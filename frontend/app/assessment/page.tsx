@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
+import { analysisSteps } from "@/data/rules";
+import { generateBusinessReport } from "@/lib/intelligence";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
@@ -123,9 +126,11 @@ const documentTypes = [
 ];
 
 export default function AssessmentPage() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisStage, setAnalysisStage] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [answers, setAnswers] = useState({
     industry: "",
     companySize: "",
@@ -136,6 +141,22 @@ export default function AssessmentPage() {
     documentTypes: [] as string[],
     goal: "",
   });
+
+  const saveAssessmentAnswers = (payload: typeof answers) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.sessionStorage.setItem("aura-assessment-answers", JSON.stringify(payload));
+  };
+
+  const saveGeneratedReport = (report: ReturnType<typeof generateBusinessReport>) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.sessionStorage.setItem("aura-generated-business-report", JSON.stringify(report));
+  };
 
   const progressPercent = (currentStep / 6) * 100;
 
@@ -163,36 +184,31 @@ export default function AssessmentPage() {
     });
   };
 
-  const analysisSteps = [
-    "Understanding your industry",
-    "Evaluating business maturity",
-    "Detecting automation opportunities",
-    "Calculating potential ROI",
-    "Building your AI transformation roadmap",
-  ];
-
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < 6) {
       setCurrentStep((step) => step + 1);
       return;
     }
 
-    setIsAnalyzing(true);
-    setCurrentStep(6);
+    if (isSubmitting || isAnalyzing) {
+      return;
+    }
 
-    const timer = window.setInterval(() => {
-      setAnalysisStage((stage) => {
-        if (stage >= analysisSteps.length - 1) {
-          window.clearInterval(timer);
-          window.setTimeout(() => {
-            window.location.href = "/analysis";
-          }, 600);
-          return stage;
-        }
+    saveAssessmentAnswers(answers);
 
-        return stage + 1;
-      });
-    }, 900);
+    setIsSubmitting(true);
+
+    const report = generateBusinessReport({
+      industry: answers.industry,
+      companySize: answers.companySize,
+      challenge: answers.challenge,
+      systems: answers.systems,
+      documents: answers.documentVolume,
+      goal: answers.goal,
+    });
+
+    saveGeneratedReport(report);
+    router.push("/report");
   };
 
   const handlePrevious = () => {
@@ -245,7 +261,7 @@ export default function AssessmentPage() {
 
                       return (
                         <div
-                          key={step}
+                          key={step.id}
                           className={`flex items-center rounded-2xl border px-4 py-3 text-sm transition ${
                             isComplete
                               ? "border-emerald-200 bg-emerald-50 text-emerald-700"
@@ -255,7 +271,7 @@ export default function AssessmentPage() {
                           }`}
                         >
                           <span className={`mr-3 h-2.5 w-2.5 rounded-full ${isComplete ? "bg-emerald-500" : isActive ? "bg-blue-600" : "bg-slate-300"}`} />
-                          {isComplete ? "✓" : isActive ? "●" : "○"} {step}
+                          {isComplete ? "✓" : isActive ? "●" : "○"} {step.label}
                         </div>
                       );
                     })}
@@ -479,7 +495,7 @@ export default function AssessmentPage() {
               <Button
                 className="rounded-full bg-blue-600 px-5 text-white hover:bg-blue-700"
                 onClick={handleNext}
-                disabled={currentStep === 6 && isAnalyzing}
+                disabled={currentStep === 6 && (isAnalyzing || isSubmitting)}
               >
                 Next
                 <ArrowRight className="ml-2 h-4 w-4" />

@@ -1,6 +1,6 @@
 import { AssessmentJourney } from "@/components/landing/AssessmentJourney";
 import { CTA } from "@/components/landing/CTA";
-import { ExecutiveReport } from "@/components/landing/ExecutiveReport";
+import { ExecutivePreview } from "@/components/landing/ExecutivePreview";
 import { Footer } from "@/components/landing/Footer";
 import { Hero } from "@/components/landing/Hero";
 import { AnalysisLoader } from "@/components/landing/AnalysisLoader";
@@ -31,7 +31,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <ExecutiveReport />
+      <ExecutivePreview />
       <InteractiveWorkflow />
       <CTA />
       <Footer />

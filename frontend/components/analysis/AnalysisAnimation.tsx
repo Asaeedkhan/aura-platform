@@ -5,15 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-
-const analysisSteps = [
-  "Understanding your business profile",
-  "Evaluating operational maturity",
-  "Detecting workflow bottlenecks",
-  "Calculating automation opportunities",
-  "Estimating ROI and annual savings",
-  "Generating your Executive Report",
-];
+import { analysisSteps } from "@/data/rules";
 
 const DURATION_MS = 5000;
 
@@ -120,7 +112,7 @@ export function AnalysisAnimation() {
 
                     return (
                       <motion.div
-                        key={step}
+                        key={step.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.25, delay: index * 0.05 }}
@@ -135,7 +127,7 @@ export function AnalysisAnimation() {
                         <div className={`flex h-8 w-8 items-center justify-center rounded-full border ${isComplete ? "border-emerald-500/30 bg-emerald-500/10" : "border-slate-700 bg-slate-900"}`}>
                           {isComplete ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : <span className="text-xs font-semibold text-slate-300">{index + 1}</span>}
                         </div>
-                        <span>{step}</span>
+                        <span>{step.label}</span>
                       </motion.div>
                     );
                   })}
