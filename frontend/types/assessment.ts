@@ -37,6 +37,14 @@ export type WorkflowDefinition = {
   steps: WorkflowStep[];
 };
 
+export type BusinessOpportunity = {
+  opportunity: string;
+  businessImpact: string;
+  implementationEffort: string;
+  priority: "Critical" | "High" | "Medium" | "Low";
+  estimatedRoi: string;
+};
+
 export type BusinessReport = {
   scores: {
     businessHealth: number;
@@ -55,6 +63,7 @@ export type BusinessReport = {
       title: string;
     }>;
   };
+  opportunities: BusinessOpportunity[];
   workflows: WorkflowDefinition[];
   businessHealth: number;
   aiReadiness: number;

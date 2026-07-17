@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { generateBusinessReport } from "@/lib/intelligence";
 import { ExecutiveReport } from "@/components/report/ExecutiveReport";
-import type { BusinessReportInput } from "@/types/assessment";
+import type { BusinessReport, BusinessReportInput } from "@/types/assessment";
 
 const sampleAssessment: BusinessReportInput = {
   industry: "Procurement",
@@ -16,7 +16,27 @@ const sampleAssessment: BusinessReportInput = {
   goal: "Reduce manual work and improve approval visibility",
 };
 
-const sampleReport = generateBusinessReport(sampleAssessment);
+const generatedSampleReport = generateBusinessReport(sampleAssessment);
+
+const sampleReport: BusinessReport = {
+  ...generatedSampleReport,
+  scores: {
+    ...generatedSampleReport.scores,
+    aiReadiness: 84,
+    businessHealth: 81,
+    automationPotential: 92,
+  },
+  financialImpact: {
+    ...generatedSampleReport.financialImpact,
+    estimatedSavings: 1_400_000,
+    monthlyHoursSaved: 154.1667,
+    roiMonths: 7,
+  },
+  businessHealth: 81,
+  aiReadiness: 84,
+  estimatedSavings: 1_400_000,
+  estimatedHours: 154.1667,
+};
 
 export function ExecutivePreview() {
   return (

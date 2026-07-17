@@ -1,5 +1,6 @@
 import type { BusinessReport } from "@/types/assessment";
 import { FinancialImpact } from "./FinancialImpact";
+import { OpportunityMatrix } from "./OpportunityMatrix";
 import { RecommendedAgents } from "./RecommendedAgents";
 import { RoadmapTimeline } from "./RoadmapTimeline";
 import { ScoreCards } from "./ScoreCards";
@@ -10,7 +11,8 @@ type ExecutiveReportProps = {
 };
 
 function getSummaryText(report: BusinessReport) {
-  return `Based on the assessment, AURA identified a focused ${report.topRecommendation} recommendation. The organization shows AI readiness of ${report.scores.aiReadiness} with ${report.financialImpact.monthlyHoursSaved} hours saved per month and estimated annual savings of AED ${report.financialImpact.estimatedSavings.toLocaleString("en-AE")}.`;
+  const annualHoursSaved = Math.round(report.financialImpact.monthlyHoursSaved * 12);
+  return `Based on the assessment, AURA identified a focused ${report.topRecommendation} recommendation. The organization shows AI readiness of ${report.scores.aiReadiness} with ${annualHoursSaved.toLocaleString("en-AE")} hours saved per year and estimated annual savings of AED ${report.financialImpact.estimatedSavings.toLocaleString("en-AE")}.`;
 }
 
 export function ExecutiveReport({ report }: ExecutiveReportProps) {
@@ -27,6 +29,10 @@ export function ExecutiveReport({ report }: ExecutiveReportProps) {
 
       <div className="mt-3">
         <FinancialImpact report={report} />
+      </div>
+
+      <div className="mt-3">
+        <OpportunityMatrix opportunities={report.opportunities} />
       </div>
 
       <div className="mt-3 grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">

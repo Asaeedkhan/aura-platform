@@ -7,6 +7,8 @@ type FinancialImpactProps = {
 };
 
 export function FinancialImpact({ report }: FinancialImpactProps) {
+  const annualHoursSaved = Math.round(report.financialImpact.monthlyHoursSaved * 12);
+
   return (
     <Card className="border-slate-800 bg-slate-950/70 shadow-none">
       <CardContent className="px-5 py-4">
@@ -17,12 +19,12 @@ export function FinancialImpact({ report }: FinancialImpactProps) {
             <p className="mt-2 text-xl font-semibold text-white">{formatCurrency(report.financialImpact.estimatedSavings)}</p>
           </div>
           <div className="rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Hours Saved / Month</p>
-            <p className="mt-2 text-xl font-semibold text-cyan-300">{report.financialImpact.monthlyHoursSaved}</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-slate-500">Hours Saved / Year</p>
+            <p className="mt-2 text-xl font-semibold text-cyan-300">{annualHoursSaved.toLocaleString("en-AE")}</p>
           </div>
           <div className="rounded-2xl border border-slate-800 bg-slate-900/60 px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.24em] text-slate-500">ROI Months</p>
-            <p className="mt-2 text-xl font-semibold text-emerald-300">{report.financialImpact.roiMonths}</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-slate-500">ROI</p>
+            <p className="mt-2 text-xl font-semibold text-emerald-300">{report.financialImpact.roiMonths} months</p>
           </div>
         </div>
       </CardContent>

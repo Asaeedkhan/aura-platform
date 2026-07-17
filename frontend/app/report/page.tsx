@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { generateBusinessReport } from "@/lib/intelligence";
 import { ExecutiveReport } from "@/components/report/ExecutiveReport";
 import { formatCurrency } from "@/components/report/utils";
-import type { AssessmentAnswers, BusinessReport, WorkflowDefinition, WorkflowStepType } from "@/types/assessment";
+import type { AssessmentAnswers, BusinessOpportunity, BusinessReport, WorkflowDefinition, WorkflowStepType } from "@/types/assessment";
 
 const fallbackAnswers: AssessmentAnswers = {
   industry: "",
@@ -36,7 +36,61 @@ type StoredReport = Omit<Partial<BusinessReport>, "scores" | "financialImpact" |
         steps?: Array<string | { id?: string; label?: string; type?: WorkflowStepType }>;
       }
   >;
+  opportunities?: Array<
+    | BusinessOpportunity
+    | {
+        title?: string;
+        opportunity?: string;
+        businessImpact?: string;
+        implementationEffort?: string;
+        priority?: string;
+        estimatedRoi?: string;
+      }
+  >;
 };
+
+function normalizeStoredOpportunities(
+  report: StoredReport,
+  fallbackPriority: string[],
+  estimatedSavings: number,
+  estimatedHours: number,
+): BusinessOpportunity[] {
+  if (report.opportunities?.length) {
+    return report.opportunities.map((entry, index) => {
+      const priority = (entry.priority ?? "Medium").toString().toLowerCase();
+      const normalizedPriority: BusinessOpportunity["priority"] =
+        priority === "critical" ? "Critical" : priority === "high" ? "High" : priority === "low" ? "Low" : "Medium";
+
+      return {
+        opportunity: entry.opportunity ?? entry.title ?? `Opportunity ${index + 1}`,
+        businessImpact: entry.businessImpact ?? "Improve execution velocity and cross-team consistency",
+        implementationEffort: entry.implementationEffort ?? "Medium",
+        priority: normalizedPriority,
+        estimatedRoi: entry.estimatedRoi ?? "6-9 months",
+      };
+    });
+  }
+
+  const topPriority = fallbackPriority[0] ?? "Business Intelligence Agent";
+  const secondPriority = fallbackPriority[1] ?? "Process Automation";
+
+  return [
+    {
+      opportunity: `${topPriority} rollout`,
+      businessImpact: `Unlock up to AED ${Math.round(estimatedSavings * 0.35).toLocaleString("en-AE")} annual value`,
+      implementationEffort: "Medium",
+      priority: "Critical",
+      estimatedRoi: "4-6 months",
+    },
+    {
+      opportunity: `${secondPriority} expansion`,
+      businessImpact: `Recover ~${Math.round(estimatedHours * 0.3).toLocaleString("en-AE")} hours/month in key workflows`,
+      implementationEffort: "High",
+      priority: "High",
+      estimatedRoi: "6-9 months",
+    },
+  ];
+}
 
 function normalizeStoredWorkflows(report: StoredReport): WorkflowDefinition[] {
   const toStepType = (value: string): WorkflowStepType => {
@@ -111,6 +165,7 @@ function normalizeReport(report: StoredReport): BusinessReport {
   const aiReadiness = report.aiReadiness ?? report.scores?.aiReadiness ?? 0;
   const estimatedSavings = report.estimatedSavings ?? report.financialImpact?.estimatedSavings ?? 0;
   const estimatedHours = report.estimatedHours ?? report.financialImpact?.monthlyHoursSaved ?? 0;
+  const opportunities = normalizeStoredOpportunities(report, priority, estimatedSavings, estimatedHours);
 
   return {
     scores: {
@@ -127,6 +182,7 @@ function normalizeReport(report: StoredReport): BusinessReport {
       priority,
       roadmap,
     },
+    opportunities,
     workflows,
     businessHealth,
     aiReadiness,

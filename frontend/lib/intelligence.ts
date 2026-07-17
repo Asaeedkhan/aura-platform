@@ -1,4 +1,4 @@
-import type { BusinessReport, BusinessReportInput, WorkflowDefinition, WorkflowStep, WorkflowStepType } from "@/types/assessment";
+import type { BusinessOpportunity, BusinessReport, BusinessReportInput, WorkflowDefinition, WorkflowStep, WorkflowStepType } from "@/types/assessment";
 
 const RULES = {
   procurementSystems: ["sap", "oracle", "microsoft dynamics 365", "microsoft-dynamics-365", "odoo"],
@@ -56,6 +56,7 @@ export function generateBusinessReport(answers: BusinessReportInput): BusinessRe
         title,
       })),
     },
+    opportunities: buildOpportunities(state),
     workflows: state.workflows.map((name) => ({
       ...buildWorkflow(name),
     })),
@@ -331,4 +332,37 @@ function toId(value: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+}
+
+function buildOpportunities(state: ReturnType<typeof createInitialReportState>): BusinessOpportunity[] {
+  const primary = state.recommendedAgents[0] ?? "Business Intelligence Agent";
+  const secondary = state.recommendedAgents[1] ?? "Automation Assistant";
+  const tertiary = state.recommendedAgents[2] ?? "Workflow Coordinator";
+
+  const annualSavings = state.estimatedSavings;
+  const monthlyHours = state.estimatedHours;
+
+  return [
+    {
+      opportunity: `${primary} deployment`,
+      businessImpact: `Unlock up to AED ${Math.round(annualSavings * 0.42).toLocaleString("en-AE")} annual value`,
+      implementationEffort: "Medium",
+      priority: "Critical",
+      estimatedRoi: "4-6 months",
+    },
+    {
+      opportunity: `Scale ${secondary} workflow`,
+      businessImpact: `Recover ~${Math.round(monthlyHours * 0.35).toLocaleString("en-AE")} hours/month in manual operations`,
+      implementationEffort: "Medium",
+      priority: "High",
+      estimatedRoi: "6-8 months",
+    },
+    {
+      opportunity: `Expand ${tertiary} coverage`,
+      businessImpact: "Improve process consistency across cross-functional approvals",
+      implementationEffort: "High",
+      priority: "Medium",
+      estimatedRoi: "8-12 months",
+    },
+  ];
 }
