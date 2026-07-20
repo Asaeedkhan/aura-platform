@@ -125,6 +125,19 @@ const documentTypes = [
   "Emails",
 ];
 
+type AssessmentApiRecord = {
+  id: string;
+  created_at: string;
+  payload: {
+    industry: string;
+    company_size: string;
+    challenge: string;
+    systems: string[];
+    documents: string | number | string[];
+    goal: string;
+  };
+};
+
 export default function AssessmentPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
@@ -197,18 +210,66 @@ export default function AssessmentPage() {
     saveAssessmentAnswers(answers);
 
     setIsSubmitting(true);
+    setIsAnalyzing(true);
+    setAnalysisStage(0);
 
-    const report = generateBusinessReport({
-      industry: answers.industry,
-      companySize: answers.companySize,
-      challenge: answers.challenge,
-      systems: answers.systems,
-      documents: answers.documentVolume,
-      goal: answers.goal,
-    });
+    const mergedSystems = answers.otherSystem.trim()
+      ? [...answers.systems, answers.otherSystem.trim()]
+      : answers.systems;
 
-    saveGeneratedReport(report);
-    router.push("/report");
+    const analysisInterval = window.setInterval(() => {
+      setAnalysisStage((current) => {
+        if (current >= analysisSteps.length - 1) {
+          return current;
+        }
+
+        return current + 1;
+      });
+    }, 450);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/assessments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          industry: answers.industry,
+          company_size: answers.companySize,
+          challenge: answers.challenge,
+          systems: mergedSystems,
+          documents: answers.documentVolume,
+          goal: answers.goal,
+        }),
+      });
+
+      if (!response.ok) {
+        console.error(await response.text());
+        throw new Error(`Assessment submission failed with status ${response.status}`);
+      }
+
+      const assessmentRecord = (await response.json()) as AssessmentApiRecord;
+
+      const report = generateBusinessReport({
+        industry: assessmentRecord.payload.industry,
+        companySize: assessmentRecord.payload.company_size,
+        challenge: assessmentRecord.payload.challenge,
+        systems: assessmentRecord.payload.systems,
+        documents: assessmentRecord.payload.documents,
+        goal: assessmentRecord.payload.goal,
+      });
+
+      saveGeneratedReport(report);
+      router.push("/report");
+    } catch (error) {
+      console.error("Assessment submission failed:", error);
+      setIsAnalyzing(false);
+      setIsSubmitting(false);
+      setAnalysisStage(0);
+      window.alert("We could not submit your assessment right now. Please try again.");
+    } finally {
+      window.clearInterval(analysisInterval);
+    }
   };
 
   const handlePrevious = () => {

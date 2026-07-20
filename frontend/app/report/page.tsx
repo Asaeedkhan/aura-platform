@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { generateBusinessReport } from "@/lib/intelligence";
+import { AdvisorChat } from "@/components/report/AdvisorChat";
 import { ExecutiveReport } from "@/components/report/ExecutiveReport";
 import { formatCurrency } from "@/components/report/utils";
 import type { AssessmentAnswers, BusinessOpportunity, BusinessReport, WorkflowDefinition, WorkflowStepType } from "@/types/assessment";
@@ -62,7 +63,7 @@ function normalizeStoredOpportunities(
         priority === "critical" ? "Critical" : priority === "high" ? "High" : priority === "low" ? "Low" : "Medium";
 
       return {
-        opportunity: entry.opportunity ?? entry.title ?? `Opportunity ${index + 1}`,
+        opportunity: entry.opportunity ?? `Opportunity ${index + 1}`,
         businessImpact: entry.businessImpact ?? "Improve execution velocity and cross-team consistency",
         implementationEffort: entry.implementationEffort ?? "Medium",
         priority: normalizedPriority,
@@ -294,6 +295,7 @@ Implementation Timeline:
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-slate-100 sm:px-8 lg:px-12 xl:px-16">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-8">
         <ExecutiveReport report={report} />
+        <AdvisorChat report={report} />
 
         <div className="mt-8 flex flex-col items-center gap-3 text-center sm:flex-row sm:gap-4">
           <div className="text-sm text-slate-400">Ready to transform your business?</div>

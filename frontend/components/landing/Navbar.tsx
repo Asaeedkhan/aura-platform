@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -13,6 +14,8 @@ const links = [
 ];
 
 export function Navbar() {
+  const router = useRouter();
+
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-8 lg:px-12 xl:px-16">
@@ -28,7 +31,7 @@ export function Navbar() {
           ))}
         </div>
 
-        <Button className="rounded-full bg-blue-600 px-5 text-white hover:bg-blue-700" onClick={() => window.location.href = "/assessment"}>
+        <Button className="rounded-full bg-blue-600 px-5 text-white hover:bg-blue-700" onClick={() => router.push("/assessment") }>
           Start Assessment
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
